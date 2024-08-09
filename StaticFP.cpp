@@ -1,6 +1,6 @@
 //=============================================================================
 // FILE:
-//    HelloWorld.cpp
+//    StaticFP.cpp
 //
 // DESCRIPTION:
 //    Visits all functions in a module, prints their names and the number of
@@ -64,7 +64,7 @@ void printFunctionPointerAddress(Value *CalledValue, LLVMContext &Context, std::
 }
 
 // FunctionPass that analyzes function pointers
-struct HelloWorld : public PassInfoMixin<HelloWorld> {
+struct StaticFP : public PassInfoMixin<StaticFP> {
     // Entry point for the pass
     PreservedAnalyses run(Function &F, FunctionAnalysisManager &FAM) {
         // Open CSV file
@@ -108,16 +108,16 @@ struct HelloWorld : public PassInfoMixin<HelloWorld> {
 //-----------------------------------------------------------------------------
 // New PM Registration
 //-----------------------------------------------------------------------------
-llvm::PassPluginLibraryInfo getHelloWorldPluginInfo() {
+llvm::PassPluginLibraryInfo getStaticFPPluginInfo() {
   const auto callback = [](PassBuilder &PB) {
     PB.registerPipelineEarlySimplificationEPCallback(
         [&](ModulePassManager &MPM, auto) {
-          MPM.addPass(createModuleToFunctionPassAdaptor(HelloWorld()));
+          MPM.addPass(createModuleToFunctionPassAdaptor(StaticFP()));HelloWorld
           return true;
         });
   };
 
-  return {LLVM_PLUGIN_API_VERSION, "hello-world", "0.0.1", callback};
+  return {LLVM_PLUGIN_API_VERSION, "static-fp", "0.0.1", callback};
 }
 
 // This is the core interface for pass plugins. It guarantees that 'opt' will
@@ -125,5 +125,5 @@ llvm::PassPluginLibraryInfo getHelloWorldPluginInfo() {
 // command line, i.e. via '-passes=hello-world'
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
-  return getHelloWorldPluginInfo();
+  return getStaticFPPluginInfo();
 }
