@@ -1,24 +1,6 @@
 //========================================================================
 // FILE:
-//    InjectFuncCall.cpp
-//
-// DESCRIPTION:
-//    For each function defined in the input IR module, InjectFuncCall inserts
-//    a call to printf (from the C standard I/O library). The injected IR code
-//    corresponds to the following function call in ANSI C:
-//    ```C
-//      printf("(llvm-tutor) Hello from: %s\n(llvm-tutor)   number of arguments: %d\n",
-//             FuncName, FuncNumArgs);
-//    ```
-//    This code is inserted at the beginning of each function, i.e. before any
-//    other instruction is executed.
-//
-//    To illustrate, for `void foo(int a, int b, int c)`, the code added by InjectFuncCall
-//    will generated the following output at runtime:
-//    ```
-//    (llvm-tutor) Hello World from: foo
-//    (llvm-tutor)   number of arguments: 3
-//    ```
+//    DynamicFP.cpp
 //
 // USAGE:
 //      $ opt -load-pass-plugin <BUILD_DIR>/lib/libInjectFunctCall.so `\`
@@ -39,7 +21,7 @@ using namespace llvm;
 //-----------------------------------------------------------------------------
 // InjectFuncCall implementation
 //-----------------------------------------------------------------------------
-bool InjectFuncCall::runOnModule(Module &M) {
+bool DynamicFP::runOnModule(Module &M) {
   bool InsertedAtLeastOnePrintf = false;
 
   auto &CTX = M.getContext();
@@ -122,7 +104,7 @@ bool InjectFuncCall::runOnModule(Module &M) {
   return InsertedAtLeastOnePrintf;
 }
 
-PreservedAnalyses InjectFuncCall::run(llvm::Module &M,
+PreservedAnalyses DynamicFP::run(llvm::Module &M,
                                        llvm::ModuleAnalysisManager &) {
   bool Changed =  runOnModule(M);
 
@@ -134,11 +116,11 @@ PreservedAnalyses InjectFuncCall::run(llvm::Module &M,
 //-----------------------------------------------------------------------------
 // New PM Registration
 //-----------------------------------------------------------------------------
-llvm::PassPluginLibraryInfo getInjectFuncCallPluginInfo() {
+llvm::PassPluginLibraryInfo getDynamicFPPluginInfo() {
   const auto callback = [](PassBuilder &PB) {
     PB.registerPipelineEarlySimplificationEPCallback(
         [&](ModulePassManager &MPM, auto) {
-          MPM.addPass(InjectFuncCall());
+          MPM.addPass(DynamicFP());
           return true;
         });
   };
@@ -148,5 +130,5 @@ llvm::PassPluginLibraryInfo getInjectFuncCallPluginInfo() {
 
 extern "C" LLVM_ATTRIBUTE_WEAK ::llvm::PassPluginLibraryInfo
 llvmGetPassPluginInfo() {
-  return getInjectFuncCallPluginInfo();
+  return getDynamicFPPluginInfo();
 }
