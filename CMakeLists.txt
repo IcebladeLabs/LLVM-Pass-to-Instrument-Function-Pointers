@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(llvm-tutor-hello-world)
+project(fp-trace-static-fp)
 
 #===============================================================================
 # 1. LOAD LLVM CONFIGURATION
@@ -13,7 +13,7 @@ list(APPEND CMAKE_PREFIX_PATH "${LT_LLVM_INSTALL_DIR}/lib/cmake/llvm/")
 
 find_package(LLVM CONFIG)
 if("${LLVM_VERSION_MAJOR}" VERSION_LESS 16)
-  message(FATAL_ERROR "Found LLVM ${LLVM_VERSION_MAJOR}, but need LLVM 18 or above")
+  message(FATAL_ERROR "Found LLVM ${LLVM_VERSION_MAJOR}, but need LLVM 16 or above")
 endif()
 
 # HelloWorld includes headers from LLVM - update the include paths accordingly
@@ -33,9 +33,9 @@ endif()
 #===============================================================================
 # 3. ADD THE TARGET
 #===============================================================================
-add_library(HelloWorld SHARED HelloWorld.cpp)
+add_library(StaticFP SHARED StaticFP.cpp)
 
 # Allow undefined symbols in shared objects on Darwin (this is the default
 # behaviour on Linux)
-target_link_libraries(HelloWorld
+target_link_libraries(StaticFP
   "$<$<PLATFORM_ID:Darwin>:-undefined dynamic_lookup>")
